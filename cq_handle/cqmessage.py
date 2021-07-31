@@ -82,7 +82,7 @@ def fun_msg(recv, user_id):
         send = ibot.penzi()
     elif recv == '#duanzi':
         send = ibot.duanzi()
-    elif recv == '#netease':
+    elif recv == '#wyy':
         send = netease.get_comment()
     elif recv == '#bot':
         send = ibot.sizhi(recv, user_id)
