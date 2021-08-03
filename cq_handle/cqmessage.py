@@ -3,8 +3,9 @@
 对消息事件处理
 """
 import json
+import re
 from cq_socket import client
-from fun_api import ibot, netease
+from fun_api import ibot
 
 
 def message_handle(content):
@@ -64,28 +65,48 @@ def fun_msg(recv, user_id):
     if recv == '#':
         send = '''\
 功能菜单如下:
-
-#: 查看功能菜单
-#bot: 机器人聊天
-#chp: 彩虹屁
-#dz:  讲段子
-#pyq: 朋友圈文案
-#pz:  喷子
-#wyy: 网抑云风格评论
-
-(彩蛋: 隐藏功能,多多探索 ^_^)'''
+============
+#:\t查看功能菜单
+#功能 #:\t查看功能参数
+#bot*:\t机器人聊天
+#chp:\t彩虹屁
+#dz:\t讲段子
+#medal:\t东京奥运奖牌榜
+#pyq:\t朋友圈文案
+#pz*:\t喷子
+#wyy:\t网抑云
+============
+*表示该功能可加参数,不需输入*'''
     elif recv == '#chp':
         send = ibot.chp()
     elif recv == '#pyq':
         send = ibot.pyq()
-    elif recv == '#pz':
-        send = ibot.penzi()
-    elif recv == '#duanzi':
+    elif recv == '#dz':
         send = ibot.duanzi()
+    elif recv == '#medal':
+        send = ibot.medals()
     elif recv == '#wyy':
-        send = netease.get_comment()
-    elif recv == '#bot':
-        send = ibot.sizhi(recv, user_id)
+        send = ibot.wyy()
+    elif re.match(r'#pz', recv):
+        level = None
+        if re.search(r'\s+#$', recv):
+            send = 'max -火力较大\nmin -火力一般\n如: #pz max'
+        else:
+            if re.search(r'\s+max\s+|\s+max$', recv):
+                level = 'max'
+            elif re.search(r'\s+min\s+|\s+min$', recv):
+                level = 'min'
+            send = ibot.penzi(level)
+    elif re.match(r'#bot', recv):
+        if re.search(r'\s+#$', recv):
+            send = 'cm -聪明点的聊天机器人\nsz -傻一点的聊天机器人\n如: #bot cm 问题'
+        else:
+            if re.search(r'\s+cm\s+|\s+cm$', recv):
+                send = ibot.sizhi(recv, user_id)
+            elif re.search(r'\s+sz\s+|\s+sz$', recv):
+                send = ibot.xiaoi(recv, user_id)
+            else:
+                send = ibot.sizhi(recv, user_id)
     else:
         send = ibot.sizhi(recv)
     # send = send.replace(' ', '%20')
